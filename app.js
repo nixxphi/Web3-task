@@ -127,3 +127,11 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+//testing 
+const user = new User('Tappi');
+user.addMoreData('Favorite movies', ['Tenet', 'The Marvels'] );
+user.addMoreData('Favorite artist', ['Da Vinci', 'Michelangelo', 'Buju']);
+
+// Dynamically generated get method for customCategory1
+console.log(user.getCustomCategory1Data());
