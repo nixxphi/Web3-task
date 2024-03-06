@@ -16,6 +16,7 @@ class User {
         this.personalInformation = {};
         this.bankingData = {};
         this.educationData = {};
+        this.loginData = {};
         this.moreData = {}; // ADDITIONAL DATA SECTION FOR USER-DEFINED CATEGORIES
         User.instance = this;
         User.exists = true;
@@ -61,6 +62,33 @@ class User {
             };
         }
         this.moreData[category][subtopic].push(data);
+    }
+    addLoginData(service, username, password) {
+        // ENCRYPT THE PASSWORD BEFORE STORING IT
+        const cipher = crypto.createCipher('aes192', secretKey);
+        let encryptedPassword = cipher.update(password, 'utf8', 'hex');
+        encryptedPassword += cipher.final('hex');
+
+        this.loginData[service] = {
+            username,
+            password: encryptedPassword
+        };
+    }
+
+    // Method for retrieving encrypted password for a service
+    getEncryptedPassword(service) {
+        if (this.loginData[service]) {
+            return this.loginData[service].password;
+        }
+        return null;
+    }
+
+    // Method for decrypting password using the secret key
+    decryptPassword(encryptedPassword) {
+        const decipher = crypto.createDecipher('aes192', secretKey);
+        let decryptedPassword = decipher.update(encryptedPassword, 'hex', 'utf8');
+        decryptedPassword += decipher.final('utf8');
+        return decryptedPassword;
     }
 }
 
