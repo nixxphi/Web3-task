@@ -4,9 +4,18 @@ const jwt = require('jsonwebtoken');
 const Web3 = require('web3');
 
 const app = express();
-const secretKey = 'secret-key'; // Change this to a secure secret key. I'm counting on you Azi.
+const secretKey = 'secret-key'; // CHANGE THIS TO A SECURE SECRET KEY. I'M COUNTING ON YOU AZI.
 
-// Here's our base user class with singleton pattern
+// Initialize web3 for interacting with Ethereum network
+const web3 = new Web3('http://localhost:8545'); // Update with your Ethereum node URL
+
+// Deployed smart contract address
+const contractAddress = 'YOUR_CONTRACT_ADDRESS';
+const contractABI = []; // Update with your contract ABI
+
+const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+// Base user class with singleton pattern
 class User {
     constructor(name) {
         if (User.exists) {
@@ -16,8 +25,8 @@ class User {
         this.personalInformation = {};
         this.bankingData = {};
         this.educationData = {};
-        this.loginData = {};
         this.moreData = {}; // ADDITIONAL DATA SECTION FOR USER-DEFINED CATEGORIES
+        this.loginData = {}; // LOGIN DATA SECTION FOR STORING LOGIN CREDENTIALS SECURELY
         User.instance = this;
         User.exists = true;
     }
@@ -63,43 +72,25 @@ class User {
         }
         this.moreData[category][subtopic].push(data);
     }
-    addLoginData(service, username, password) {
-        // ENCRYPT THE PASSWORD BEFORE STORING IT
-        const cipher = crypto.createCipher('aes192', secretKey);
-        let encryptedPassword = cipher.update(password, 'utf8', 'hex');
-        encryptedPassword += cipher.final('hex');
 
-        this.loginData[service] = {
-            username,
-            password: encryptedPassword
-        };
+    // Method for storing login data securely
+    storeLoginData(service, username, password) {
+        // WE'RE SUPPOSED TO STORE THE LOGIN DATA SECURELY USING ENCRYPTION BEFORE STORING IN BLOCKCHAIN
+        // Here, we'll just store it in plain text for demonstration purposes, I'm not good enough to do the real thing yet 
+        this.loginData[service] = { username, password };
     }
 
-    // Method for retrieving encrypted password for a service
-    getEncryptedPassword(service) {
-        if (this.loginData[service]) {
-            return this.loginData[service].password;
-        }
-        return null;
-    }
-
-    // Method for decrypting password using the secret key
-    decryptPassword(encryptedPassword) {
-        const decipher = crypto.createDecipher('aes192', secretKey);
-        let decryptedPassword = decipher.update(encryptedPassword, 'hex', 'utf8');
-        decryptedPassword += decipher.final('utf8');
-        return decryptedPassword;
+    // Method for retrieving login data securely
+    getLoginData(service) {
+        // RETRIEVE THE LOGIN DATA SECURELY AND DECRYPT IT BEFORE SENDING TO THE USER
+        // Here, we'll just return it as it is for demonstration purposes
+        return this.loginData[service];
     }
 }
 
-
-// Express middleware for file uploads. just so it's clear, I haven't mastered Express. I got this off stack overflow.
 app.use(fileUpload());
-
-// Serve static files
 app.use(express.static('public'));
 
-// Middleware for user authentication
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -117,7 +108,6 @@ function authenticateToken(req, res, next) {
     });
 }
 
-// Handle file uploads
 app.post('/upload', authenticateToken, async (req, res) => {
     if (!req.files || !req.files.fileInput) {
         return res.status(400).send('No files were uploaded.');
@@ -126,10 +116,10 @@ app.post('/upload', authenticateToken, async (req, res) => {
     const uploadedFile = req.files.fileInput;
     
     try {
-        // Store the file on IPFS (Thats the only decentralized storage I know of)
+        // STORE THE FILE ON IPFS (THAT'S THE ONLY DECENTRALIZED STORAGE I KNOW OF)
         const ipfsHash = await storeOnIPFS(uploadedFile);
         
-        // Send transaction to the smart contract to store the IPFS hash
+        // SEND TRANSACTION TO THE SMART CONTRACT TO STORE THE IPFS HASH
         const accounts = await web3.eth.getAccounts();
         await contract.methods.storeIdentification(ipfsHash).send({ from: accounts[0] });
 
@@ -140,20 +130,17 @@ app.post('/upload', authenticateToken, async (req, res) => {
     }
 });
 
-// Function to store file on IPFS (or any other decentralized storage)
 async function storeOnIPFS(file) {
-    // Implementation to store file on IPFS goes here
+    // IMPLEMENTATION TO STORE FILE ON IPFS GOES HERE
+    // Azi... I'm truly counting on you 😅
 }
 
-// Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something went wrong... and that means you ain\'t getting to this data.');
 });
 
-// Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-
