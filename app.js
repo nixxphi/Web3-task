@@ -8,6 +8,7 @@ const secretKey = 'secret-key'; // Change this to a secure secret key. I'm count
 
 // Here's our base user class with singleton pattern
 class User {
+    cclass User {
     constructor(name) {
         if (User.exists) {
             return User.instance;
@@ -52,13 +53,12 @@ class User {
     addMoreData(category, data) {
         if (!this.moreData[category]) {
             this.moreData[category] = [];
+            //lets make sure user created categories can have get methods
+            this[`get${category.replace(/\s+/g, '')}Data`] = () => {
+                return this.moreData[category];
+            };
         }
         this.moreData[category].push(data);
-
-        // Dynamically generate get method for the added category
-        this[`get${category}Data`] = () => {
-            return this.moreData[category];
-        };
     }
 }
 
@@ -128,10 +128,3 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-//testing 
-const user = new User('Tappi');
-user.addMoreData('Favorite movies', ['Tenet', 'The Marvels'] );
-user.addMoreData('Favorite artist', ['Da Vinci', 'Michelangelo', 'Buju']);
-
-// Dynamically generated get method for customCategory1
-console.log(user.getCustomCategory1Data());
