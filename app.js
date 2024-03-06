@@ -86,6 +86,9 @@ class User {
         // Here, we'll just return it as it is for demonstration purposes
         return this.loginData[service];
     }
+    requestProfileData(source) {
+        // IMPLEMENT REQUEST TO EXTERNAL SOURCE HERE. I'LL TRY TO FIGURE OUT HOW TO GET GOOGLE, FB AND MAYBE TWITTER APIS
+        }
 }
 
 app.use(fileUpload());
