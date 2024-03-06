@@ -1,17 +1,60 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const jwt = require('jsonwebtoken');
+const Web3 = require('web3');
 
 const app = express();
-const secretKey = 'your-secret-key'; // Change this to a secure secret key, that's Azi's job
+const secretKey = 'secret-key'; // Change this to a secure secret key. I'm counting on you Azi.
 
-// This for handling file uploads
+// Base user class with singleton pattern
+class User {
+    constructor(name) {
+        if (User.exists) {
+            return User.instance;
+        }
+        this.name = name;
+        this.personalInformation = {};
+        this.bankingData = {};
+        this.educationData = {};
+        this.voterId = {};
+        User.instance = this;
+        User.exists = true;
+    }
+
+    addPersonalInformation(info) {
+        this.personalInformation = info;
+    }
+
+    getPersonalInformation() {
+        return this.personalInformation;
+    }
+
+    addBankingData(data) {
+        this.bankingData = data;
+    }
+
+    getBankingData() {
+        return this.bankingData;
+    }
+
+    addEducationData(data) {
+        this.educationData = data;
+    }
+
+    getEducationData() {
+        return this.educationData;
+    }
+    getVoterId(){
+        return this.voterId;
+}
+
+// Express middleware for file uploads. just so it's clear, I haven't mastered Express. I got this off stack overflow.
 app.use(fileUpload());
 
-// Static files
+// Serve static files
 app.use(express.static('public'));
 
-// User authentication
+// Middleware for user authentication
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -29,7 +72,7 @@ function authenticateToken(req, res, next) {
     });
 }
 
-// Handling user file uploads
+// Handle file uploads
 app.post('/upload', authenticateToken, async (req, res) => {
     if (!req.files || !req.files.fileInput) {
         return res.status(400).send('No files were uploaded.');
@@ -38,7 +81,7 @@ app.post('/upload', authenticateToken, async (req, res) => {
     const uploadedFile = req.files.fileInput;
     
     try {
-        // Store the file on IPFS (or any other decentralized storage)
+        // Store the file on IPFS (Thats the only decentralized storage I know of)
         const ipfsHash = await storeOnIPFS(uploadedFile);
         
         // Send transaction to the smart contract to store the IPFS hash
@@ -60,7 +103,7 @@ async function storeOnIPFS(file) {
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('Something went wrong!');
+    res.status(500).send('Something went wrong... and that means you ain\'t getting to this data.');
 });
 
 // Start the server
