@@ -8,7 +8,6 @@ const secretKey = 'secret-key'; // Change this to a secure secret key. I'm count
 
 // Here's our base user class with singleton pattern
 class User {
-    cclass User {
     constructor(name) {
         if (User.exists) {
             return User.instance;
@@ -17,7 +16,7 @@ class User {
         this.personalInformation = {};
         this.bankingData = {};
         this.educationData = {};
-        this.moreData = {}; // Additional data section for user-defined categories
+        this.moreData = {}; // ADDITIONAL DATA SECTION FOR USER-DEFINED CATEGORIES
         User.instance = this;
         User.exists = true;
     }
@@ -50,18 +49,20 @@ class User {
     }
 
     // Method for adding data to the moreData section. The user is expected to create new categories for their data if it doesn't fit into the pre-existing models.
-    addMoreData(category, data) {
+    addMoreData(category, data, subtopic = 'default') {
         if (!this.moreData[category]) {
-            this.moreData[category] = [];
-            //lets make sure user created categories can have get methods
+            this.moreData[category] = {};
+        }
+        if (!this.moreData[category][subtopic]) {
+            this.moreData[category][subtopic] = [];
+            // LET'S MAKE SURE USER-CREATED CATEGORIES CAN HAVE GET METHODS
             this[`get${category.replace(/\s+/g, '')}Data`] = () => {
-                return this.moreData[category];
+                return this.moreData[category][subtopic];
             };
         }
-        this.moreData[category].push(data);
+        this.moreData[category][subtopic].push(data);
     }
 }
-
 
 
 // Express middleware for file uploads. just so it's clear, I haven't mastered Express. I got this off stack overflow.
