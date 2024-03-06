@@ -157,3 +157,4 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
+// add commit messages so we can all keep track of changes. 
