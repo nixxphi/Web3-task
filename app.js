@@ -6,7 +6,7 @@ const Web3 = require('web3');
 const app = express();
 const secretKey = 'secret-key'; // Change this to a secure secret key. I'm counting on you Azi.
 
-// Base user class with singleton pattern
+// Here's our base user class with singleton pattern
 class User {
     constructor(name) {
         if (User.exists) {
@@ -16,11 +16,12 @@ class User {
         this.personalInformation = {};
         this.bankingData = {};
         this.educationData = {};
-        this.voterId = {};
+        this.moreData = {}; // Additional data section for user-defined categories
         User.instance = this;
         User.exists = true;
     }
 
+    // Methods for managing personal information
     addPersonalInformation(info) {
         this.personalInformation = info;
     }
@@ -29,6 +30,7 @@ class User {
         return this.personalInformation;
     }
 
+    // Methods for managing banking data
     addBankingData(data) {
         this.bankingData = data;
     }
@@ -37,6 +39,7 @@ class User {
         return this.bankingData;
     }
 
+    // Methods for managing education data
     addEducationData(data) {
         this.educationData = data;
     }
@@ -44,9 +47,22 @@ class User {
     getEducationData() {
         return this.educationData;
     }
-    getVoterId(){
-        return this.voterId;
+
+    // Method for adding data to the moreData section. The user is expected to create new categories for their data if it doesn't fit into the pre-existing models.
+    addMoreData(category, data) {
+        if (!this.moreData[category]) {
+            this.moreData[category] = [];
+        }
+        this.moreData[category].push(data);
+
+        // Dynamically generate get method for the added category
+        this[`get${category}Data`] = () => {
+            return this.moreData[category];
+        };
+    }
 }
+
+
 
 // Express middleware for file uploads. just so it's clear, I haven't mastered Express. I got this off stack overflow.
 app.use(fileUpload());
